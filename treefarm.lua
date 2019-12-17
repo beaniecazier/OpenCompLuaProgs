@@ -7,6 +7,7 @@ local treesZ = 5
 local x = 0
 local z = 0
 local distanceBetweenTrees = 3
+local verbose = false
 -- facing is 0, 1, 2, 3 where 0 is the direction that is away from the charger, ie starting direction
 local facing = 0
 
@@ -18,8 +19,7 @@ local function GoForward()
       break
     end
   end
-  if facing % 2 == 0 
-  then
+  if facing % 2 == 0 then
     if facing == 0 then 
       z = z + 1 
     else 
@@ -31,6 +31,20 @@ local function GoForward()
     else 
       x = x - 1 
     end
+  end
+
+  if verbose then
+    sfacing = ''
+    if facing == 0 then
+      sfacing = 'posZ'
+    elseif facing == 1 then
+      sfacing = 'posX'
+    elseif facing == 2 then
+      sfacing = 'negZ'
+    else
+      sfacing = 'negX'
+    end 
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
   end
 end
 
@@ -47,11 +61,39 @@ local function facePosZ()
   while facing ~= 0 do
     Turn()
   end
+
+  if verbose then
+    sfacing = ''
+    if facing == 0 then
+      sfacing = 'posZ'
+    elseif facing == 1 then
+      sfacing = 'posX'
+    elseif facing == 2 then
+      sfacing = 'negZ'
+    else
+      sfacing = 'negX'
+    end 
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
+  end
 end
 
 local function facePosX()
   while facing ~= 1 do
     Turn()
+  end
+
+  if verbose then
+    sfacing = ''
+    if facing == 0 then
+      sfacing = 'posZ'
+    elseif facing == 1 then
+      sfacing = 'posX'
+    elseif facing == 2 then
+      sfacing = 'negZ'
+    else
+      sfacing = 'negX'
+    end 
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
   end
 end
 
@@ -59,15 +101,44 @@ local function faceNegZ()
   while facing ~= 2 do
     Turn()
   end
+
+  if verbose then
+    sfacing = ''
+    if facing == 0 then
+      sfacing = 'posZ'
+    elseif facing == 1 then
+      sfacing = 'posX'
+    elseif facing == 2 then
+      sfacing = 'negZ'
+    else
+      sfacing = 'negX'
+    end 
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
+  end
 end
 
 local function faceNegX()
   while facing ~= 3 do
     Turn()
   end
+
+  if verbose then
+    sfacing = ''
+    if facing == 0 then
+      sfacing = 'posZ'
+    elseif facing == 1 then
+      sfacing = 'posX'
+    elseif facing == 2 then
+      sfacing = 'negZ'
+    else
+      sfacing = 'negX'
+    end 
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
+  end
 end
 
 local function GoToStart()
+  print('Now returning to origin position: (0,0)')
   while x ~= 0 and z ~= 0 do
     if x ~= 0 then
       faceNegX()
@@ -87,14 +158,24 @@ local function GoToStart()
 end
 
 local function EvaluateDurability()
+  print('Now evaluating tool durability')
   if robot.durability() < 100 then
+    print('Tool durability evaluation: Too low to continue assigned task')
+    print('Following proposed solution, wait 15 seconds')
     os.sleep(15)
+    print('15 second sleep now ending')
+  else
+    print('Tool durability evaluation: Tool durability within acceptable range')
+    print('continuing assigned task')
+  end
 end
 
 local function EvaluateStock()
+  print('Now evaluating stock levels of first inventory slot')
   GoToStart()
   faceNegX()
-  if  robot.count() < 32 then
+  if robot.count() < 32 then
+    print('Stock levels too low')
     while robot.count() < 32 do
       rock.suck()
     end
@@ -103,10 +184,14 @@ local function EvaluateStock()
 end
 
 local function EvaluatePower()
+  print('Now evaluating energy levels')
   current = computer.energy()
   max = computer.maxEnergy()
   if current / max < .5 then
+    print('Energy level evaluation: Too low to continue assigned task')
+    print('Following proposed solution, wait 15 seconds')
     os.sleep(30)
+    print('30 second sleep now ending')
   end
 end
 
@@ -122,25 +207,33 @@ local function PlantTrees()
 end
 
 local function dropOffItems()
+    print('Now beginning assigned task: dropping off excess items')
     GoToStart()
     facePosX()
     GoForward()
+    print('Waiting 30 seconds for inventory to empty into hopper')
     os.sleep(30)
+    print('30 second sleep now ending')
     faceNegX()
     GoForward()
     facePosZ()
 end
 
-local function navigateFarm(action)
+local function navigateFarm(action, task)
+  print('Now beginning assigned task: ' + task)
   GoToStart()
   EvaluatePower()
   EvaluateStock()
   for x = 0, treesX do
     facePosX()
-    for t = 0,4 do GoForward() end
+    for t = 0,4 do 
+      GoForward() 
+    end
     facePosZ()
     for z = 0, treesZ do
-      for t = 0,4 do GoForward() end
+      for t = 0,4 do 
+        GoForward() 
+      end
       facePosX()
       action()
       facePosZ()
@@ -152,9 +245,13 @@ end
 
 -- Select the first slot, whihc is supposed ro have a sapling
 robot.select(1)
+if arg[1] == '-v' or arg[1] == '-V' then
+  verbose = true
+end
+
 while true do
-  navigateFarm(CutTrees)
-  navigateFarm(PlantTrees)
+  navigateFarm(CutTrees, 'Cut down trees')
+  navigateFarm(PlantTrees, 'Replant trees')
   dropOffItems()
   os.sleep(300)
 end
