@@ -162,7 +162,7 @@ end
 
 local function EvaluateDurability()
   print('Now evaluating tool durability')
-  if robot.durability() < 100 then
+  if robot.durability() < .5 then
     print('Tool durability evaluation: Too low to continue assigned task')
     print('Following proposed solution, wait 15 seconds')
     os.sleep(15)
@@ -180,7 +180,7 @@ local function EvaluateStock()
   if robot.count() < 32 then
     print('Stock levels too low')
     while robot.count() < 32 do
-      rock.suck()
+      robot.suck()
     end
   end
   facePosZ()
@@ -227,14 +227,14 @@ local function navigateFarm(action, task)
   GoToStart()
   EvaluatePower()
   EvaluateStock()
-  for x = 0, treesX do
+  for x = 1,treesX do
     facePosX()
-    for t = 0,4 do 
+    for t = 0,distanceBetweenTrees do 
       GoForward() 
     end
     facePosZ()
-    for z = 0, treesZ do
-      for t = 0,4 do 
+    for z = 1, treesZ do
+      for t = 0,distanceBetweenTrees do 
         GoForward() 
       end
       facePosX()
@@ -242,14 +242,18 @@ local function navigateFarm(action, task)
       facePosZ()
     end
     faceNegZ()
-    for t = 0,(distanceBetweenTrees+1)*treesZ do GoForward() end
+    for t = 1,(distanceBetweenTrees+1)*treesZ do 
+      GoForward() 
+    end
   end
 end
 
 -- Select the first slot, whihc is supposed ro have a sapling
 robot.select(1)
-if arg[2] == '-v' or arg[2] == '-V' then
-  verbose = true
+if #args > 1 then
+  if args[2] == '-v' or args[2] == '-V' then
+    verbose = true
+  end
 end
 
 while true do
