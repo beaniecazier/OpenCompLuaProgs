@@ -1,5 +1,8 @@
 local computer = require("computer")
 local robot = require("robot")
+local shell = require("shell")
+
+local args, option = shell.parse(...)
 
 -- Change these to change the tree farm grid size or the distance between each tree in the grid.
 local treesX = 1
@@ -44,7 +47,7 @@ local function GoForward()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z))
   end
 end
 
@@ -73,7 +76,7 @@ local function facePosZ()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z))
   end
 end
 
@@ -93,7 +96,7 @@ local function facePosX()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z))
   end
 end
 
@@ -113,7 +116,7 @@ local function faceNegZ()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
+    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z))
   end
 end
 
@@ -133,7 +136,7 @@ local function faceNegX()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z,))
+    print(string.format('Current coords %n,%n, facing ' .. sfacing,x,z))
   end
 end
 
@@ -220,7 +223,7 @@ local function dropOffItems()
 end
 
 local function navigateFarm(action, task)
-  print('Now beginning assigned task: ' + task)
+  print('Now beginning assigned task: ' .. task)
   GoToStart()
   EvaluatePower()
   EvaluateStock()
@@ -245,7 +248,7 @@ end
 
 -- Select the first slot, whihc is supposed ro have a sapling
 robot.select(1)
-if arg[1] == '-v' or arg[1] == '-V' then
+if arg[2] == '-v' or arg[2] == '-V' then
   verbose = true
 end
 
