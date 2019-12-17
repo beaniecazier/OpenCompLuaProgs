@@ -18,16 +18,72 @@ local function GoForward()
       break
     end
   end
-  if facing % 2 == 0 then
-    z = if facing == 0 then z + 1 else z - 1 end
+  if facing % 2 == 0 
+  then
+    if facing == 0 then 
+      z = z + 1 
+    else 
+      z = z - 1 
+    end
   else
-    x = if facing == 1 then x + 1 else X - 1 end
+    if facing == 1 then 
+      x = x + 1 
+    else 
+      x = x - 1 
+    end
   end
 end
 
 local function Turn()
-  facing = if facing == 3 then 0 else facing + 1 end
+  if facing == 3 then
+    facing = 0 
+  else
+    facing = facing + 1 
+  end
   robot.turnRight()
+end
+
+local function facePosZ()
+  while facing ~= 0 do
+    Turn()
+  end
+end
+
+local function facePosX()
+  while facing ~= 1 do
+    Turn()
+  end
+end
+
+local function faceNegZ()
+  while facing ~= 2 do
+    Turn()
+  end
+end
+
+local function faceNegX()
+  while facing ~= 3 do
+    Turn()
+  end
+end
+
+local function GoToStart()
+  while x ~= 0 and z ~= 0 do
+    if x ~= 0 then
+      faceNegX()
+      if robot.forward() then
+        x = x - 1
+      end
+    end
+    if z ~= 0 then
+      faceNegZ()
+      robot.forward()
+      if robot.forward() then
+        z = z - 1
+      end
+    end
+  end
+  facePosZ()
 end
 
 local function EvaluateDurability()
@@ -38,8 +94,10 @@ end
 local function EvaluateStock()
   GoToStart()
   faceNegX()
-  while robot.count() < 32 do
-    rock.suck()
+  if  robot.count() < 32 then
+    while robot.count() < 32 do
+      rock.suck()
+    end
   end
   facePosZ()
 end
@@ -49,64 +107,6 @@ local function EvaluatePower()
   max = computer.maxEnergy()
   if current / max < .5 then
     os.sleep(30)
-  end
-end
-
-local function GoToStart()
-  while x != 0 and z != 0 do
-    if x != 0 do
-      faceNegX()
-      x -= if robot.forward() then 1 else 0
-    end
-    if z != 0 do
-      faceNegZ()
-      robot.forward()
-      z -= if robot.forward() then 1 else 0
-    end
-  end
-  facePosZ()
-end
-
-local function facePosZ()
-  while facing != 0 do
-    Turn()
-  end
-end
-
-local function facePosX()
-  while facing != 1 do
-    Turn()
-  end
-end
-
-local function faceNegZ()
-  while facing != 2 do
-    Turn()
-  end
-end
-
-local function faceNegX()
-  while facing != 3 do
-    Turn()
-  end
-end
-
-local function navigateFarm(action)
-  GoToStart()
-  EvaluatePower()
-  EvaluateStock()
-  for x = 0, treesX do
-    facePosX()
-    for t = 0,4 do GoForward() end
-    facePosZ()
-    for z = 0, treesZ do
-      for t = 0,4 do GoForward() end
-      facePosX()
-      action()
-      facePosZ()
-    end
-    faceNegZ()
-    for t = 0,(distanceBetweenTrees+1)*treesZ do GoForward() end
   end
 end
 
@@ -129,6 +129,25 @@ local function dropOffItems()
     faceNegX()
     GoForward()
     facePosZ()
+end
+
+local function navigateFarm(action)
+  GoToStart()
+  EvaluatePower()
+  EvaluateStock()
+  for x = 0, treesX do
+    facePosX()
+    for t = 0,4 do GoForward() end
+    facePosZ()
+    for z = 0, treesZ do
+      for t = 0,4 do GoForward() end
+      facePosX()
+      action()
+      facePosZ()
+    end
+    faceNegZ()
+    for t = 0,(distanceBetweenTrees+1)*treesZ do GoForward() end
+  end
 end
 
 -- Select the first slot, whihc is supposed ro have a sapling
