@@ -10,7 +10,7 @@ local treesZ = 5
 local x = 0
 local z = 0
 local distanceBetweenTrees = 3
-local verbose = false
+local verbose = true
 -- facing is 0, 1, 2, 3 where 0 is the direction that is away from the charger, ie starting direction
 local facing = 0
 
