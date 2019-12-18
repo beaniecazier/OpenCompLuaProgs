@@ -1,6 +1,9 @@
+-- version 1.0.0
+
 local computer = require("computer")
 local robot = require("robot")
 local shell = require("shell")
+local os = require('os')
 
 local args, option = shell.parse(...)
 
@@ -47,7 +50,7 @@ local function GoForward()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z))
+    print(string.format('Current coords %n,%n, facing ' .. sfacing,x,z))
   end
 end
 
@@ -76,7 +79,7 @@ local function facePosZ()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z))
+    print(string.format('Current coords %n,%n, facing ' .. sfacing,x,z))
   end
 end
 
@@ -96,7 +99,7 @@ local function facePosX()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z))
+    print(string.format('Current coords %n,%n, facing ' .. sfacing,x,z))
   end
 end
 
@@ -116,7 +119,7 @@ local function faceNegZ()
     else
       sfacing = 'negX'
     end 
-    print(string.format('Current coords %n,%n, facing ' + sfacing,x,z))
+    print(string.format('Current coords %n,%n, facing ' .. sfacing,x,z))
   end
 end
 
@@ -142,7 +145,7 @@ end
 
 local function GoToStart()
   print('Now returning to origin position: (0,0)')
-  while x ~= 0 and z ~= 0 do
+  while (x ~= 0 or z ~= 0) do
     if x ~= 0 then
       faceNegX()
       if robot.forward() then
@@ -206,7 +209,7 @@ local function CutTrees()
 end
 
 local function PlantTrees()
-  robot.use()
+  robot.place()
 end
 
 local function dropOffItems()
@@ -260,5 +263,5 @@ while true do
   navigateFarm(CutTrees, 'Cut down trees')
   navigateFarm(PlantTrees, 'Replant trees')
   dropOffItems()
-  os.sleep(300)
+  os.sleep(360)
 end
